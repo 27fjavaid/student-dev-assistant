@@ -6,6 +6,7 @@ export default function Home() {
   const [messages, setMessages] = useState<{role: string, content: string}[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState<number | null>(null);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -27,22 +28,52 @@ export default function Home() {
     setLoading(false);
   };
 
+  const clearChat = () => setMessages([]);
+
+  const copyMessage = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopied(index);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-4">
       <h1 className="text-3xl font-bold mb-2 text-blue-400">Student Dev Assistant</h1>
-      <p className="text-gray-400 mb-6">Ask me anything about coding or your studies!</p>
+      <p className="text-gray-400 mb-4">Ask me anything about coding or your studies!</p>
 
       <div className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-xl flex flex-col h-[600px]">
+        
+        {/* Header with clear button */}
+        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
+          <span className="text-sm text-gray-400">{messages.length} messages</span>
+          <button
+            onClick={clearChat}
+            className="text-sm text-red-400 hover:text-red-300 transition"
+          >
+            Clear Chat
+          </button>
+        </div>
+
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <p className="text-gray-500 text-center mt-20">Start a conversation below!</p>
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm ${
-                msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-100"
-              }`}>
-                {msg.content}
+              <div className="relative group">
+                <div className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm ${
+                  msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-100"
+                }`}>
+                  {msg.content}
+                </div>
+                {msg.role === "assistant" && (
+                  <button
+                    onClick={() => copyMessage(msg.content, i)}
+                    className="absolute -bottom-5 left-0 text-xs text-gray-500 hover:text-gray-300 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    {copied === i ? "Copied!" : "Copy"}
+                  </button>
+                )}
               </div>
             </div>
           ))}
