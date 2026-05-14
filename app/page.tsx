@@ -50,16 +50,21 @@ function TypingMessage({ text, onUpdate }: { text: string; onUpdate: () => void 
 }
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+ const [messages, setMessages] = useState<Message[]>([]);
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("study");
+
   const [lastAssistantIndex, setLastAssistantIndex] = useState<number | null>(null);
+  const [darkMode, setDarkMode] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [uploadedNotes, setUploadedNotes] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -70,6 +75,34 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem("chat-history");
+    const savedMode = localStorage.getItem("chat-mode");
+    if (savedMessages) setMessages(JSON.parse(savedMessages));
+    if (savedMode) setMode(savedMode as Mode);
+    setIsLoaded(true);
+  }, []);
+
+  // Save messages only after loaded
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("chat-history", JSON.stringify(messages));
+    }
+  }, [messages, isLoaded]);
+
+  // Save mode only after loaded
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("chat-mode", mode);
+    }
+  }, [mode, isLoaded]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -130,10 +163,15 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-4">
+    <main className={`min-h-screen ${darkMode ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-900"} flex flex-col items-center justify-center p-4 transition-colors duration-300`}>
       <h1 className="text-3xl font-bold mb-2 text-blue-400">Student Dev Assistant</h1>
       <p className="text-gray-400 mb-4">Ask me anything about coding or your studies!</p>
-
+    <button
+  onClick={() => setDarkMode(!darkMode)}
+  className="mb-4 px-3 py-1 rounded-full text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 transition"
+>
+  {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+</button>
       {/* Mode Toggle */}
       <div className="flex gap-2 mb-4">
         <button
@@ -175,10 +213,9 @@ export default function Home() {
         )}
       </div>
 
-      <div className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-xl flex flex-col h-[600px]">
-
+<div className={`w-full max-w-2xl ${darkMode ? "bg-gray-900" : "bg-white"} rounded-2xl shadow-xl flex flex-col h-[600px] transition-colors duration-300`}>
         {/* Header */}
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
+        <div className={`flex justify-between items-center px-4 py-3 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
           <span className="text-sm text-gray-400">
             {mode === "study" ? "🎓 Study Mode" : "💻 Code Mode"} · {messages.length} messages
           </span>
@@ -231,9 +268,10 @@ export default function Home() {
           )}
         </div>
 
-        <div className="p-4 border-t border-gray-700 flex gap-2">
+        <div className={`p-4 border-t ${darkMode ? "border-gray-700" : "border-gray-200"} flex gap-2`}>
           <textarea
-            className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-2 text-sm outline-none resize-none"
+          ref={textareaRef}
+           className={`flex-1 ${darkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"} rounded-xl px-4 py-2 text-sm outline-none resize-none max-h-40`}
             placeholder={mode === "study" ? "Ask a study question..." : "Paste your code or describe a bug..."}
             value={input}
             rows={1}
