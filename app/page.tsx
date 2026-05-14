@@ -164,8 +164,8 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen ${darkMode ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-900"} flex flex-col items-center justify-center p-4 transition-colors duration-300`}>
-      <h1 className="text-3xl font-bold mb-2 text-blue-400">Student Dev Assistant</h1>
-      <p className="text-gray-400 mb-4">Ask me anything about coding or your studies!</p>
+      <h1 className="text-3xl font-bold mb-2 text-blue-400">StudyAI</h1>
+<p className="text-gray-400 mb-4">Your AI powered study and coding assistant!</p>
     <button
   onClick={() => setDarkMode(!darkMode)}
   className="mb-4 px-3 py-1 rounded-full text-sm bg-gray-700 hover:bg-gray-600 text-gray-300 transition"
