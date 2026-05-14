@@ -1,9 +1,32 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: string; content: string };
 type Mode = "study" | "code";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const markdownComponents: any = {
+  ul: (props: any) => <ul className="list-disc ml-4 space-y-1 my-2" {...props} />,
+  ol: (props: any) => <ol className="list-decimal ml-4 space-y-1 my-2" {...props} />,
+  li: (props: any) => <li className="text-gray-100" {...props} />,
+  strong: (props: any) => <strong className="font-bold text-white" {...props} />,
+  p: (props: any) => <p className="mb-2" {...props} />,
+  h2: (props: any) => <h2 className="font-bold text-white text-base mt-3 mb-1" {...props} />,
+  h3: (props: any) => <h3 className="font-bold text-white text-sm mt-2 mb-1" {...props} />,
+  code: (props: any) => {
+    const { className, children } = props;
+    const isBlock = className?.includes("language-");
+    return isBlock ? (
+      <pre className="bg-gray-950 rounded-lg p-3 my-2 overflow-x-auto w-full">
+        <code className="text-green-400 text-xs font-mono whitespace-pre">{children}</code>
+      </pre>
+    ) : (
+      <code className="bg-gray-800 px-1 rounded text-green-400 font-mono text-xs">{children}</code>
+    );
+  },
+};
 
 function TypingMessage({ text, onUpdate }: { text: string; onUpdate: () => void }) {
   const [displayed, setDisplayed] = useState("");
@@ -23,7 +46,7 @@ function TypingMessage({ text, onUpdate }: { text: string; onUpdate: () => void 
     return () => clearInterval(interval);
   }, [text]);
 
-  return <span>{displayed}</span>;
+  return <ReactMarkdown components={markdownComponents}>{displayed}</ReactMarkdown>;
 }
 
 export default function Home() {
@@ -123,12 +146,14 @@ export default function Home() {
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className="relative group">
-                <div className={`px-4 py-2 rounded-2xl max-w-[75%] text-sm ${
-                  msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-100"
+              <div className="relative group w-full max-w-[85%]">
+                <div className={`px-4 py-2 rounded-2xl text-sm ${
+                  msg.role === "user" ? "bg-blue-600 text-white ml-auto w-fit max-w-full" : "bg-gray-700 text-gray-100 w-full"
                 }`}>
                   {msg.role === "assistant" && i === lastAssistantIndex ? (
                     <TypingMessage text={msg.content} onUpdate={scrollToBottom} />
+                  ) : msg.role === "assistant" ? (
+                    <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
                   ) : (
                     msg.content
                   )}
