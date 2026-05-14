@@ -56,7 +56,10 @@ export default function Home() {
   const [copied, setCopied] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("study");
   const [lastAssistantIndex, setLastAssistantIndex] = useState<number | null>(null);
+  const [uploadedNotes, setUploadedNotes] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -67,6 +70,31 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, loading]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFileName(file.name);
+
+    if (file.type === "text/plain") {
+      const text = await file.text();
+      setUploadedNotes(text);
+    } else if (file.name.endsWith(".docx")) {
+      const mammoth = await import("mammoth");
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      setUploadedNotes(result.value);
+    } else {
+      alert("Please upload a .txt or .docx file");
+    }
+  };
+
+  const clearNotes = () => {
+    setUploadedNotes("");
+    setFileName("");
+    if (fileRef.current) fileRef.current.value = "";
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -80,7 +108,7 @@ export default function Home() {
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: updatedMessages, mode }),
+      body: JSON.stringify({ messages: updatedMessages, mode, notes: uploadedNotes }),
     });
 
     const data = await response.json();
@@ -126,6 +154,27 @@ export default function Home() {
         </button>
       </div>
 
+      {/* Upload Notes */}
+      <div className="w-full max-w-2xl mb-3">
+        {!uploadedNotes ? (
+          <label className="flex items-center gap-2 cursor-pointer bg-gray-800 hover:bg-gray-700 transition rounded-xl px-4 py-2 text-sm text-gray-400 w-fit">
+            📄 Upload Notes (.txt or .docx)
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".txt,.docx"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+          </label>
+        ) : (
+          <div className="flex items-center gap-2 bg-green-900 rounded-xl px-4 py-2 text-sm text-green-300 w-fit">
+            ✅ {fileName} uploaded
+            <button onClick={clearNotes} className="text-red-400 hover:text-red-300 ml-2">✕ Remove</button>
+          </div>
+        )}
+      </div>
+
       <div className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-xl flex flex-col h-[600px]">
 
         {/* Header */}
@@ -141,7 +190,11 @@ export default function Home() {
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <p className="text-gray-500 text-center mt-20">
-              {mode === "study" ? "Ask me to explain a concept or help you study!" : "Paste your code and I'll help you debug it!"}
+              {uploadedNotes
+                ? `📄 Notes loaded! Ask me anything about "${fileName}"`
+                : mode === "study"
+                ? "Ask me to explain a concept or help you study!"
+                : "Paste your code and I'll help you debug it!"}
             </p>
           )}
           {messages.map((msg, i) => (
@@ -180,18 +233,18 @@ export default function Home() {
 
         <div className="p-4 border-t border-gray-700 flex gap-2">
           <textarea
-  className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-2 text-sm outline-none resize-none"
-  placeholder={mode === "study" ? "Ask a study question..." : "Paste your code or describe a bug..."}
-  value={input}
-  rows={1}
-  onChange={(e) => setInput(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }}
-/>
+            className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-2 text-sm outline-none resize-none"
+            placeholder={mode === "study" ? "Ask a study question..." : "Paste your code or describe a bug..."}
+            value={input}
+            rows={1}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+          />
           <button
             onClick={sendMessage}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium"

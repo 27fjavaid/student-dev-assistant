@@ -36,14 +36,23 @@ const systemPrompts = {
 };
 
 export async function POST(request) {
-  const { messages, mode } = await request.json();
+  const { messages, mode, notes } = await request.json();
+
+  const systemContent = notes
+    ? `${systemPrompts[mode] || systemPrompts.study}
+
+The user has uploaded the following notes. Use them to answer questions:
+---
+${notes}
+---`
+    : systemPrompts[mode] || systemPrompts.study;
 
   const completion = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
     messages: [
       {
         role: "system",
-        content: systemPrompts[mode] || systemPrompts.study,
+        content: systemContent,
       },
       ...messages,
     ],
