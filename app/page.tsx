@@ -155,7 +155,7 @@ export default function Home() {
                   ) : msg.role === "assistant" ? (
                     <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
                   ) : (
-                    msg.content
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
                   )}
                 </div>
                 {msg.role === "assistant" && (
@@ -179,13 +179,19 @@ export default function Home() {
         </div>
 
         <div className="p-4 border-t border-gray-700 flex gap-2">
-          <input
-            className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-2 text-sm outline-none"
-            placeholder={mode === "study" ? "Ask a study question..." : "Paste your code or describe a bug..."}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
+          <textarea
+  className="flex-1 bg-gray-800 text-white rounded-xl px-4 py-2 text-sm outline-none resize-none"
+  placeholder={mode === "study" ? "Ask a study question..." : "Paste your code or describe a bug..."}
+  value={input}
+  rows={1}
+  onChange={(e) => setInput(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }}
+/>
           <button
             onClick={sendMessage}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium"
