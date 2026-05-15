@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StudyAI
+An AI-powered chatbot that helps students with coding questions and studying. Built with Next.js and deployed on Vercel.
+
+## Live Demo
+[student-dev-assistant.vercel.app](https://student-dev-assistant.vercel.app)
+
+## Features 
+- **Study Mode** — explains concepts, summarizes topics, and helps you prepare for exams
+- **Code Mode** — debugs code, explains errors, and suggests best practices
+- **Upload Notes** — upload .txt or .docx files and ask questions about them
+- **Chat History** — conversations persist after page refresh
+- **Light/Dark Mode** — toggle between light and dark themes
+- **Smart Input** — Shift+Enter for new lines, Enter to send
+- **Copy Responses** — hover over any response to copy it
+
+## Built With
+- [Next.js](https://nextjs.org/) — React framework
+- [Groq API](https://groq.com/) — AI powered by LLaMA 3.3
+- [Tailwind CSS](https://tailwindcss.com/) — styling
+- [React Markdown](https://github.com/remarkjs/react-markdown) — markdown rendering
+- [Vercel](https://vercel.com/) — deployment
+
 
 ## Getting Started
-
-First, run the development server:
-
+1. Clone the repo
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/27fjavaid/studyai.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Create a `.env.local` file and add your Groq API key. You can get a free key at [console.groq.com](https://console.groq.com). GROQ_API_KEY=your_api_key_here
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+## Screenshots
+![StudyAI Screenshot](./public/screenshot.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Fatima Javaid**
+- GitHub: [@27fjavaid](https://github.com/27fjavaid)
