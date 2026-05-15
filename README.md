@@ -42,7 +42,7 @@ npm run dev
 5. Open [http://localhost:3000](http://localhost:3000)
 
 ## Screenshots
-![StudyAI Screenshot](./public/screenshot.png)
+![StudyAI Screenshot](./public/Screenshot.png)
 
 ## Author
 
